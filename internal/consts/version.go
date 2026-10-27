@@ -33,7 +33,7 @@ var (
 // It is the one number left in the source, and it cannot drift: it is the
 // newest heading in CHANGELOG.md, which TestFallbackMatchesTheChangelog
 // checks. The tag still decides what a real build reports.
-const fallbackVersion = "0.14.1"
+const fallbackVersion = "0.14.2"
 
 // devSuffix marks a version that no tag backs.
 const devSuffix = "-dev"

@@ -11,6 +11,17 @@ and never pushed, so no tag of it exists and nothing was built from one. The
 first release this project tags is 0.14.0, and it contains both sections
 below.
 
+## [0.14.2]
+
+### Fixed
+
+- The binary `make publish` commits is the one stage built from the tagged,
+  clean commit. The build that proves prod compiles on its own ran before
+  prod was committed, so the go tool stamped it `-dev+dirty`, and since it
+  writes to the same `bin/tuta-alias` it replaced the binary just copied in:
+  the first published binary reported `0.14.1-dev+dirty`. That check now
+  builds to a throwaway path and the copy happens after it.
+
 ## [0.14.1]
 
 ### Added
