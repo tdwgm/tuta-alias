@@ -11,6 +11,22 @@ and never pushed, so no tag of it exists and nothing was built from one. The
 first release this project tags is 0.14.0, and it contains both sections
 below.
 
+## [0.14.4]
+
+### Changed
+
+- The README screenshot is the home screen (`assets/tui-home.png`), which
+  shows what the tool is for in one look and is not the tall portrait image
+  the Config screen made.
+
+## [0.14.3]
+
+### Added
+
+- README shows the TUI: a screenshot of the Config screen
+  (`assets/tui-config.png`), which is the one that shows both the layout and
+  that every setting is reachable there.
+
 ## [0.14.2]
 
 ### Fixed

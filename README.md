@@ -12,6 +12,16 @@ Pure Go, no cgo, a single static binary. It speaks Tuta's REST API directly,
 including the Argon2id auth-verifier login and TOTP, so it needs no browser and
 no Electron app.
 
+## What it looks like
+
+The TUI is the default: `tuta-alias` with no arguments opens it. Everything is
+one keystroke away from this screen — create an alias, search, list per domain,
+and the whole config.
+
+<p align="center">
+  <img src="assets/tui-home.png" alt="The tuta-alias TUI" width="700">
+</p>
+
 ## Quick start
 
 ```bash
