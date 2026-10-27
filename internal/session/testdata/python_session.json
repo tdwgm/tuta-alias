@@ -1,0 +1,19 @@
+{
+  "mail_address": "user@tuta.com",
+  "user_id": "Opwwe2j----9",
+  "access_token": "FAKE_TOKEN",
+  "user_group_id": "Opwwe2p-1g-9",
+  "group_info_id": [
+    "Opwwe2k--J-9",
+    "Opwwe2p-27-9"
+  ],
+  "mail_group_id": "Opwwe2s-0B-9",
+  "customer_id": "Opwwe2k--3-9",
+  "customer_info_id": [
+    "JDpWrwY--F-0",
+    "Opwwe2k----9"
+  ],
+  "saved_at": "2026-05-11T06:50:09.803433+00:00",
+  "version": 1,
+  "extra": {}
+}

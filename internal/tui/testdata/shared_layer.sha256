@@ -1,0 +1,6 @@
+# SHA-256 of the files copied from the TUI Scaffold template (tdwgm/go-tui,
+# go/internal/tui/), as TestSharedLayerMatchesTemplate computes them: layout.go
+# whole, font.go with its comments and bannerFonts line removed (see
+# normaliseShared). Do not edit by hand; the test says how to renew it.
+layout.go  82672d17cff4581806f3a100c5c5868912cb9280756f0e4bab697bb0db35d01e
+font.go    b20c26079033faca610d93ffa7b3d547b8a3af2df402a9155e06b2b8941963f1
