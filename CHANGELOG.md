@@ -11,6 +11,32 @@ and never pushed, so no tag of it exists and nothing was built from one. The
 first release this project tags is 0.14.0, and it contains both sections
 below.
 
+## [0.14.5]
+
+### Fixed
+
+- README statements that stopped being true when the project was published,
+  and should never have reached a reader: `go install` demanded `GOPRIVATE`
+  and refused `@latest`, Updating and Releases both promised things "once this
+  is public", and Contributing opened by listing what this project had once
+  had to scrub by hand. Contributing now says what holds for a reader of the
+  published copy: it is generated, a pull request against it is overwritten by
+  the next publication, and the development tooling and its configuration stay
+  in the development repository. The published README no longer names the
+  scanner or enumerates its rules; a list of what a project guards against is
+  a list of what to go looking for.
+- The intro says the code was written with Claude, which it always should
+  have.
+- The README no longer documents tooling the published copy does not carry.
+  The hooks, the tagging environment variables, svu, the CI jobs and the
+  secret-scan rules moved to `DEVELOPMENT.md`, which stays in the development
+  repository; the README keeps what a version string means, because that is
+  what a reader of `tuta-alias version` needs.
+- Project layout listed none of `internal/redact`, `internal/update` or
+  `internal/vault`, although each has a section of its own; Build listed no
+  `make tidy`, and did not say that `lint`, `scan` and `hooks` cannot work in
+  the published copy, whose configuration for them is not copied.
+
 ## [0.14.4]
 
 ### Changed

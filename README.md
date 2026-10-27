@@ -12,6 +12,10 @@ Pure Go, no cgo, a single static binary. It speaks Tuta's REST API directly,
 including the Argon2id auth-verifier login and TOTP, so it needs no browser and
 no Electron app.
 
+Most of this code was written with Claude, over a lot of hours. What it should
+do, how it should behave, what was wrong with the first three attempts and what
+was allowed to ship are the author's; much of the typing was not.
+
 ## What it looks like
 
 The TUI is the default: `tuta-alias` with no arguments opens it. Everything is
@@ -34,22 +38,19 @@ tuta-alias doctor     # check install, config, session and tooling
 Or, without cloning, with the Go toolchain:
 
 ```bash
-GOPRIVATE=github.com/tdwgm/tuta-alias \
-  go install github.com/tdwgm/tuta-alias/cmd/tuta-alias@main
+go install github.com/tdwgm/tuta-alias/cmd/tuta-alias@latest
 tuta-alias install    # copies the binary to INSTALL_PATH, writes the completions and the config
 ```
 
-The version is a branch or a commit, not `@latest`: there are no release tags
-yet, and `@latest` has nothing to resolve to without one.
+`@latest` resolves to the newest release tag; name one explicitly (`@v0.14.4`)
+to pin, or `@main` to build the tip.
 
-The repository is private, so this works only for someone who can read it
-(`GOPRIVATE` is what keeps the go command from asking the public module proxy,
-and git needs credentials for the repository). `go install` puts the binary in
-`$GOBIN`, or `$HOME/go/bin` when that is unset. That is not where `tuta-alias install` puts it: `install` copies
-the running binary to `INSTALL_PATH` (default `~/.local/bin/tuta-alias`) and
-writes the completion files and the config. So after `go install` you either
-run `tuta-alias install` to get all of that, or you keep using the binary where
-Go put it (then there are no completions and no config file until you do).
+`go install` puts the binary in `$GOBIN`, or `$HOME/go/bin` when that is unset.
+That is not where `tuta-alias install` puts it: `install` copies the running
+binary to `INSTALL_PATH` (default `~/.local/bin/tuta-alias`) and writes the
+completion files and the config. So after `go install` you either run
+`tuta-alias install` to get all of that, or you keep using the binary where Go
+put it (then there are no completions and no config file until you do).
 
 Everything the TUI can set is a key in `~/.config/tuta-alias/tuta-alias.conf`,
 and `install` rewrites that file in the current format while keeping your
@@ -468,9 +469,8 @@ plain uninstall and `Y` is the purge.
 
 ## Updating
 
-There is no release pipeline and the repository is private, so an update is
-not a download: it is a rebuild from the ref you point at, using the git
-credentials and the Go toolchain your machine already has.
+There are no release artifacts to download yet, so an update is a rebuild
+from the ref you point at, using the Go toolchain your machine already has.
 
 ```bash
 tuta-alias update --check   # does UPDATE_REF point at a different build?
@@ -500,10 +500,10 @@ rather than guessing.
 `tuta-alias doctor` reports whether an update is possible at all: it needs
 `git` and `go` on PATH and a writable `INSTALL_PATH`.
 
-Rebuilding is what a private repository with no releases allows. Once this is
-public and tagged, a release artifact is the better source (no Go toolchain,
-no git credentials, no minutes of compiling), and it replaces the build step
-alone: the check, the cache and the interval stay as they are.
+Rebuilding is what a repository without published artifacts allows. A release
+artifact is the better source (no Go toolchain, no minutes of compiling) and
+replaces the build step alone: the check, the cache and the interval stay as
+they are.
 
 ## Version and releases
 
@@ -527,76 +527,27 @@ test keeps it equal to the newest heading in `CHANGELOG.md`.
 whether a batch of work is `0.14.1` or `0.15.0` is a judgement about what
 changed, and the changelog is where that judgement is already written down.
 
-Both ends of that are automatic. `.githooks/pre-commit` makes sure there is a
-version to commit under: when the newest section is already tagged, it opens
-the next one in `CHANGELOG.md`, sets `consts.fallbackVersion` to match and
-stages both into the commit being made, so a batch of work can never stand
-still on a released number. `.githooks/pre-push` then tags that version once
-it has no tag yet.
-
-```bash
-make hooks     # enables .githooks/pre-commit and .githooks/pre-push
-make version   # what this tree builds as, what a push would tag, the last tag
-```
-
-The first commit after a release takes a patch bump, because the only hook
-that can add a file to a commit is `pre-commit` and it does not get to see the
-message being written. Any later commit in the batch raises the number as soon
-as the Conventional Commits since the tag add up to more, which is what svu is
-asked. `SKIP_VERSION_BUMP=1 git commit` skips it once.
-
-Only the default branch is tagged: a tag on a feature branch points at a
-commit that a squash or rebase on merge throws away, and the tag then
-outlives the commit it describes. On any other branch the hook prints what
-the push would release. git decides what to send before the hook runs, so the
-new tag cannot ride along with that push and is pushed on its own.
-
-```
-VERSION_TAG_ANY_BRANCH=1 git push   # tag from the branch you are on
-SKIP_VERSION_TAG=1 git push         # skip it once
-git push --no-verify                # skip every hook
-```
-
-Push after a release and nothing is tagged, because the changelog still names
-a released version. The hook says so, and says which number to write next:
-[svu](https://github.com/caarlos0/svu) (MIT) reads the
-[Conventional Commits](https://www.conventionalcommits.org/) since the last
-tag (`fix:` a patch, `feat:` a minor, `feat!:` or a `BREAKING CHANGE:` footer
-a major) and suggests the number. It is an adviser only, installed with
-`go install github.com/caarlos0/svu/v3@latest`, and the hook works without
-it. The `tag` job in CI tags the same thing on the merge path, where no local
-hook runs.
+Both ends of that are automatic in the development repository: a commit opens
+the next section when the newest one is already tagged, and a push tags it.
+That machinery, and the rest of what it takes to work on this, is in
+`DEVELOPMENT.md` there.
 
 Releases themselves (tagged binaries, so an update is a download instead of a
-rebuild) come when the repository is public. The stamps
-`consts.VersionStamp` and `consts.CommitStamp` are there for that build to
-state the version outright; nothing has to set them today.
+rebuild) are not published yet. The stamps `consts.VersionStamp` and
+`consts.CommitStamp` are there for that build to state the version outright;
+nothing has to set them today.
 
-## Contributing: nothing identifying reaches git
+## Contributing
 
-This repository has already had to scrub, by hand, a private machine path, a
-VPN provider's name, a home directory and a desktop setup out of its own
-source, help text and generated config file. A reviewer catching that is luck.
-The check that does not depend on luck is
-[gitleaks](https://github.com/gitleaks/gitleaks) (MIT), configured in
-`.gitleaks.toml`:
+The published repository is a copy. Development happens in a separate
+repository and each release is copied here with its binary, so a commit or a
+pull request made against this one is overwritten by the next publication.
+Open an issue instead, and say which version `tuta-alias version` prints.
 
-```bash
-make hooks    # scan the staged diff before every commit (git core.hooksPath)
-make scan     # scan the working tree and the whole history
-```
-
-On top of gitleaks' own rules for keys, tokens and private keys, this project
-adds: an absolute `/home/<name>` or `/Users/<name>` path, a personal cloud
-directory (SynologyDrive, Dropbox, OneDrive and the like), an email address
-outside the documentation domains, a Tuta session or vault file, the serve
-api-token, and a password database. CI runs the same scan over the working
-tree and the history on every push, because deleting a committed secret does
-not remove it from the clone.
-
-A false positive is fixed with a narrow allowlist entry in `.gitleaks.toml`,
-or a `gitleaks:allow` comment at the end of the offending line, never by
-turning the rule off.
+That copy carries the source, not the development tooling: the linters, the
+secret scanning, the git hooks and CI run in the development repository, and
+their configuration stays there. So `make lint`, `make scan` and `make hooks`
+are targets of that repository, not of this one.
 
 `tuta-alias doctor --redact` and `tuta-alias logs --redact` do the same job
 for output rather than for commits: they remove addresses, bare domains,
@@ -610,8 +561,9 @@ make build-all     # linux/amd64 + linux/arm64 (arm64 is Termux)
 make test          # go test ./...
 make test-race     # the same under -race
 make fuzz          # fuzz the config parser for a minute
+make tidy          # go mod tidy
 make lint          # go vet + gofmt + golangci-lint (pinned, see .golangci.yml)
-make scan          # gitleaks over the tree and the history
+make scan          # secret scan over the tree and the history
 make vulns         # govulncheck (pinned) over the call graph
 make hooks         # enable the pre-commit and pre-push hooks
 make version       # this tree's version, its last tag and the next one
@@ -620,6 +572,11 @@ make check         # what CI runs: lint + test + vulns (lint and vulns need
 make install       # build, then install the way a user would
 make clean         # rm -rf bin/
 ```
+
+`lint`, `scan` and `hooks` need configuration that lives in the development
+repository, so they do not work in the published copy; everything else does.
+That repository's `DEVELOPMENT.md` covers them, the version tagging and how a
+publication is made.
 
 CGO is off (`CGO_ENABLED=0`). The binary is fully static and
 cross-compilable.
@@ -640,11 +597,14 @@ cross-compilable.
 │   ├── config/                # tuta-alias.conf parse/round-trip + field list + validation
 │   ├── creds/                 # credential backends: bitwarden, bwrun, keepassxc, keyring (saved login)
 │   ├── plusalias/             # local + (sub-)address store + generator
+│   ├── vault/                 # the passphrase-encrypted credential file
 │   ├── notes/                 # local alias notes
 │   ├── cliflow/               # CLI command handlers (login, read, mutate, plus, config)
 │   ├── selfinstall/           # install/uninstall, shared by the CLI and the TUI wizard
 │   ├── doctor/                # the offline checklist behind `doctor` and Config → Doctor
 │   ├── logx/                  # the log file and its levels (LOG_LEVEL, LOG_FILE)
+│   ├── redact/                # removes identifying parts of this tool's own output
+│   ├── update/                # the self-update engine (UPDATE_REF, AUTO_UPDATE)
 │   ├── legacy/                # carries state over from the old tuta-cli name
 │   ├── bw/                    # Bitwarden integration (bw-run + keyctl)
 │   ├── serve/                 # local REST API
